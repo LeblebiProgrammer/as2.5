@@ -72,28 +72,28 @@ char *concat(char *str1, char *str2, char delimeter){
     return val;
 }
 
-char *fileReader(char *fpath){
-  printf("%s\n", fpath);
-    int fd = open(fpath, O_RDONLY);
-    char *fileStr = NULL;
-    if(fd != -1){
-        off_t currentPos = lseek(fd, (size_t)0, SEEK_CUR);
-        int size = lseek(fd, 0, SEEK_END);
-        if(size > 0){
-          printf("HI\n");
-        }
-        lseek(fd, currentPos, SEEK_SET);
-
-        fileStr = (char*)malloc(sizeof(char)*size);
-        read(fd, fileStr, size);
-    }
-    else{
-        printf("Configure file could not be opened\n");
-        exit(0);
-    }
-    close(fd);
-    return fileStr;
-}
+// char *fileReader(char *fpath){
+//   printf("%s\n", fpath);
+//     int fd = open(fpath, O_RDONLY);
+//     char *fileStr = NULL;
+//     if(fd != -1){
+//         off_t currentPos = lseek(fd, (size_t)0, SEEK_CUR);
+//         int size = lseek(fd, 0, SEEK_END);
+//         if(size > 0){
+//           printf("HI\n");
+//         }
+//         lseek(fd, currentPos, SEEK_SET);
+//
+//         fileStr = (char*)malloc(sizeof(char)*size);
+//         read(fd, fileStr, size);
+//     }
+//     else{
+//         printf("Configure file could not be opened\n");
+//         exit(0);
+//     }
+//     close(fd);
+//     return fileStr;
+// }
 
 // char *procFile(char *path){
 //   FILE *fp;
@@ -157,77 +157,102 @@ char *fileReader(char *fpath){
 //   return "HI";
 // }
 
-
-void test(char *fpath){
+char *fileReader(char *fpath){
   int fd;
   int MAX = 10;
   char buff[MAX];
   int size = 0;
   char *readString = (char *)malloc(sizeof(char)*MAX);
-  //char *c = (char *) calloc(100, sizeof(char));
 
   fd = open(fpath, O_RDONLY);
-  if (fd < 0) { perror("r1"); exit(1); }
-  //
-  // sz = read(fd, c, 5);
+  if (fd < 0) { return NULL; }
 
   int readSize = -1;
   int k = 0;
-  while( (readSize = read(fd, buff, 10)) > 0){
-      //printf("%s\n", buff);
-      size += readSize;
-      if(size != MAX){
-          readString = realloc(readString, size);
-          //strcat(readString, buff);
-      }else{
-          //strcat(readString, buff);
-      }
-      int buffCount = 0;
-      for(k = k; k < size; k++){
-        readString[k] = buff[buffCount];
-        buffCount++;
-      }
-      bzero(buff, MAX);
-  }
-  readString = realloc(readString, size+1);
-  readString[size] = '\0';
-  printf("%s\n", readString);
+  char wasWritten = '0';
+  while( (readSize = read(fd, buff, MAX)) > 0){
+    if(wasWritten != '1'){
+      wasWritten = '1';
+    }
+    size += readSize;
 
-  long uid = atoi(readString);
-  struct passwd *pwd;
-  if(strcmp("4294967295", readString) == 0){
-    printf("root\n");
+    readString = realloc(readString, size);
+
+    int buffCount = 0;
+    for(k = k; k < size; k++){
+      readString[k] = buff[buffCount];
+      buffCount++;
+    }
+    bzero(buff, MAX);
   }
-  else if((pwd = getpwuid(uid)) != NULL){
-    printf("%s\n", pwd->pw_name);
+  if(wasWritten == '1'){
+    readString = realloc(readString, size+1);
+    readString[size] = '\0';
+  }else{
+    free(readString);
+    readString = NULL;
   }
 
-  printf("\n");
-
-  free(readString);
-
-
-
-
-    // printf("called read(% d, c, 10).  returned that"
-    //        " %d bytes  were read.\n", fd, sz);
-    //c[sz] = '\0';
-    //printf("%s\n", c);
-//  return fileStr;
+  return readString;
 }
 
 
+char *loginFunction(char *fpath){
+
+  char *str = fileReader(fpath);
+  long uid = atoi(str);
+  struct passwd *pwd;
+  char *val = NULL;
+  if(strcmp("4294967295", str) == 0){
+    printf("root\n");
+    val = (char*)malloc(sizeof(char)*5);
+    strcpy(val, "root");
+    val[4] = '\0';
+  }
+  else if((pwd = getpwuid(uid)) != NULL){
+    printf("%s\n", pwd->pw_name);
+    val = (char*)malloc(sizeof(char)*(strlen(pwd->pw_name) + 1));
+    strcpy(val, pwd->pw_name);
+    val[strlen(pwd->pw_name)] = '\0';
+  }
+
+  free(str);
+  return val;
+
+}
+
+// char *statusFuntion
+
 void procReader(char * id){
 
-
+  printf("%s \t", id);
   char *path = concat("/proc", id, '/');
-  //loginuid//status
-  char *statPath = concat(path, "loginuid", '/');
+  char *statusPath = concat(path, "status", '/');
+  char *statusFile = fileReader(statusPath);
+
+  char *cmdLinePath = concat(path, "cmdline", '/');
+  char *cmdLine = fileReader(cmdLinePath);
+  if(cmdLine != NULL){
+    //printf("Empty line");
+  }
   //char *statStr = fileReader(statPath);
   //procFile(statPath);
-  //if(strcmp(id, "1") == 0)
-    test(statPath);
+
+  char *loginPath = concat(path, "loginuid", '/');
+  char *username = loginFunction(loginPath);
+  if(username != NULL){
+    free(username);
+  }
+  if(cmdLine != NULL){
+    free(cmdLine);
+  }
+
   free(path);
+  free(statusPath);
+  free(statusFile);
+  free(cmdLinePath);
+
+  free(loginPath);
 }
 
 void callProc()
