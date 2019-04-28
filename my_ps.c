@@ -2,7 +2,7 @@
 
 typedef struct statstruct_proc {
   int           pid;                      /** The process id. **/
-  char          exName [_POSIX_PATH_MAX]; /** The filename of the executable **/
+  char          *exName; /** The filename of the executable **/
   char          state; /** 1 **/          /** R is running, S is sleeping,
 			   D is sleeping in an uninterruptible wait,
 			   Z is zombie, T is traced or stopped **/
@@ -95,67 +95,80 @@ char *concat(char *str1, char *str2, char delimeter){
 //     return fileStr;
 // }
 
-// char *procFile(char *path){
-//   FILE *fp;
-//   fp= fopen(path, "r");
-//   if(fp == NULL){
-//
-//   }
-//   else{
-//
-//     // int pid;
-//     // long vsize;
-//     // long rss;
-//     // procinfo * pinfo = (procinfo*)malloc(sizeof(procinfo));
-//     //
-//     // // fscanf(fp, "%d %s", &pid, name);
-//     // fscanf (fp, " %d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
-// 	  // /*             1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
-//     // &(pinfo->pid),
-//     // &(pinfo->exName),
-//     // &(pinfo->state),
-// 	  // &(pinfo->ppid),
-// 	  // &(pinfo->pgrp),
-// 	  // &(pinfo->session),
-// 	  // &(pinfo->tty),
-// 	  // &(pinfo->tpgid),
-// 	  // &(pinfo->flags),
-// 	  // &(pinfo->minflt),
-// 	  // &(pinfo->cminflt),
-// 	  // &(pinfo->majflt),
-// 	  // &(pinfo->cmajflt),
-// 	  // &(pinfo->utime),
-// 	  // &(pinfo->stime),
-// 	  // &(pinfo->cutime),
-// 	  // &(pinfo->cstime),
-// 	  // &(pinfo->counter),
-// 	  // &(pinfo->priority),
-// 	  // &(pinfo->timeout),
-// 	  // &(pinfo->itrealvalue),
-// 	  // &(pinfo->starttime),
-// 	  // &(pinfo->vsize),
-// 	  // &(pinfo->rss),
-// 	  // &(pinfo->rlim),
-// 	  // &(pinfo->startcode),
-// 	  // &(pinfo->endcode),
-// 	  // &(pinfo->startstack),
-// 	  // &(pinfo->kstkesp),
-// 	  // &(pinfo->kstkeip),
-// 	  // &(pinfo->signal),
-// 	  // &(pinfo->blocked),
-// 	  // &(pinfo->sigignore),
-// 	  // &(pinfo->sigcatch),
-// 	  // &(pinfo->wchan));
-//     //
-//     // pinfo->vsize = pinfo->vsize / 1024;
-//     // printf("%d %s  %ld\n",pinfo->pid,pinfo->exName, pinfo->rss);
-//     // if(name != NULL){
-//     //   printf("%s\n", name);
-//     // }
-//     fclose(fp);
-//   }
-//   return "HI";
-// }
+void procFile(char *path){
+  FILE *fp;
+  fp= fopen(path, "r");
+  if(fp == NULL){
+
+  }
+  else{
+
+    int pid = 0;
+    char name[50];
+    char s;
+    //char *state = (char*)malloc(sizeof(char)*3);
+    int dummy = 0;
+    // long vsize;
+    // long rss;
+    //procinfo * pinfo = (procinfo*)malloc(sizeof(procinfo));
+
+    // fscanf(fp, "%d %s", &pid, name);
+    // scanf (fp, " %d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
+	  // /*             1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
+    // &(pinfo->pid),
+    // (pinfo->exName),
+    // &(pinfo->state),
+	  // &(pinfo->ppid),
+	  // &(pinfo->pgrp),
+	  // &(pinfo->session),
+	  // &(pinfo->tty),
+	  // &(pinfo->tpgid),
+	  // &(pinfo->flags),
+	  // &(pinfo->minflt),
+	  // &(pinfo->cminflt),
+	  // &(pinfo->majflt),
+	  // &(pinfo->cmajflt),
+	  // &(pinfo->utime),
+	  // &(pinfo->stime),
+	  // &(pinfo->cutime),
+	  // &(pinfo->cstime),
+	  // &(pinfo->counter),
+	  // &(pinfo->priority),
+	  // &(pinfo->timeout),
+	  // &(pinfo->itrealvalue),
+	  // &(pinfo->starttime),
+	  // &(pinfo->vsize),
+	  // &(pinfo->rss),
+	  // &(pinfo->rlim),
+	  // &(pinfo->startcode),
+	  // &(pinfo->endcode),
+	  // &(pinfo->startstack),
+	  // &(pinfo->kstkesp),
+	  // &(pinfo->kstkeip),
+	  // &(pinfo->signal),
+	  // &(pinfo->blocked),
+	  // &(pinfo->sigignore),
+	  // &(pinfo->sigcatch),
+	  // &(pinfo->wchan));
+    fscanf(fp, "%d %s %c %d", &pid, name, &s, &dummy);
+    if(name[0] == '('){
+      name[0] = '[';
+    }
+    if(name[strlen(name)-1] == ')'){
+      name[strlen(name)-1] = ']';
+    }
+    printf("%c\t%s", s, name);
+    //pinfo->vsize = pinfo->vsize / 1024;
+    //printf("%d %s  %ld\n",pinfo->pid,pinfo->exName, pinfo->rss);
+    // if(name != NULL){
+    //   printf("%s\n", name);
+    // }
+
+    //printf("%s\n", pinfo->exName);
+    fclose(fp);
+  }
+  //return "HI";
+}
 
 char *fileReader(char *fpath){
   int fd;
@@ -170,7 +183,7 @@ char *fileReader(char *fpath){
   int readSize = -1;
   int k = 0;
   char wasWritten = '0';
-  while( (readSize = read(fd, buff, MAX)) > 0){
+  while( (readSize = read(fd, buff, MAX)) > 0 && size < 50){
     if(wasWritten != '1'){
       wasWritten = '1';
     }
@@ -190,7 +203,8 @@ char *fileReader(char *fpath){
     readString[size] = '\0';
   }else{
     free(readString);
-    readString = NULL;
+    return NULL;
+    //readString = NULL;
   }
 
   return readString;
@@ -204,13 +218,13 @@ char *loginFunction(char *fpath){
   struct passwd *pwd;
   char *val = NULL;
   if(strcmp("4294967295", str) == 0){
-    printf("root\n");
+    //printf("root\n");
     val = (char*)malloc(sizeof(char)*5);
     strcpy(val, "root");
     val[4] = '\0';
   }
   else if((pwd = getpwuid(uid)) != NULL){
-    printf("%s\n", pwd->pw_name);
+    //printf("%s\n", pwd->pw_name);
     val = (char*)malloc(sizeof(char)*(strlen(pwd->pw_name) + 1));
     strcpy(val, pwd->pw_name);
     val[strlen(pwd->pw_name)] = '\0';
@@ -225,15 +239,15 @@ char *loginFunction(char *fpath){
 
 void procReader(char * id){
 
-  printf("%s \t", id);
+
   char *path = concat("/proc", id, '/');
   char *statusPath = concat(path, "status", '/');
   char *statusFile = fileReader(statusPath);
 
   char *cmdLinePath = concat(path, "cmdline", '/');
   char *cmdLine = fileReader(cmdLinePath);
-  if(cmdLine != NULL){
-    //printf("Empty line");
+  if(cmdLine == NULL){
+
   }
   //char *statStr = fileReader(statPath);
   //procFile(statPath);
@@ -241,12 +255,19 @@ void procReader(char * id){
   char *loginPath = concat(path, "loginuid", '/');
   char *username = loginFunction(loginPath);
   if(username != NULL){
+    printf("%s\t", username);
     free(username);
   }
+  printf("%s \t", id);
   if(cmdLine != NULL){
+    printf("%s\t", cmdLine);
     free(cmdLine);
+  }else{
+    char *statPath = concat(path, "stat", '/');
+    procFile(statPath);
+    free(statPath);
   }
-
+  printf("\n");
   free(path);
   free(statusPath);
   free(statusFile);
