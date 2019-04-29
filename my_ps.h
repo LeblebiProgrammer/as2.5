@@ -7,12 +7,13 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include <ctype.h>
 #include <dirent.h>
 #include <string.h>
 #include <fcntl.h>
-
+#include <time.h>
 
 typedef struct structObj{
   char *user;

@@ -83,11 +83,194 @@ procObj *procFile(char *path){
 
     int pid = 0;
     char name[50];
-    char s;
+    char s = '0';
     // char *state = (char*)malloc(sizeof(char)*3);
     int dummy = 0;
+    unsigned int dummy2 = 0;
+    unsigned long dummy3 = 0;
 
-    fscanf(fp, "%d %s", &pid, name);
+    unsigned long utime = 0;
+    unsigned long stime = 0;
+
+    unsigned long long startTime = 0;
+
+    fscanf(fp, "%d %s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %llu",
+                //1 2 3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18  19  20  21  22
+    &pid,//1
+    name,//2
+     &s,//3
+    &dummy,//4
+    &dummy,//5
+    &dummy,//6
+    &dummy,//7
+    &dummy,//8
+    &dummy2,//9
+    &dummy3,//10
+    &dummy3,//11
+    &dummy3,//12
+    &dummy3,//13
+    &utime,//14
+    &stime,//15
+    &dummy3,//16
+    &dummy3,//17
+    &dummy3,//18
+    &dummy3,//19
+    &dummy3,//20
+    &dummy3,//21
+    &startTime);//22
+
+    utime /= sysconf(_SC_CLK_TCK);
+    stime /= sysconf(_SC_CLK_TCK);
+    //struct tm *info = localtime(&stime);
+    //startTime /= sysconf(_SC_CLK_TCK);
+    //printf("%lu %lu %llu", utime, stime, startTime);
+
+    // struct stat attrib;
+    // stat(path, &attrib);
+    // // char date[10];
+    // // strftime(date, 10, "%d-%m-%y", gmtime(&(attrib.st_ctime)));
+    // // strftime(date, 20, "%d-%m-%y", localtime(&(attrib.st_ctime)));
+    // struct tm *info = localtime(&attrib.st_atime);
+    // int hour = info->tm_hour;
+    // hour--;
+    // hour = hour%24;
+    // int min = info->tm_min;
+    // int month = info->tm_mon;
+    // int day = info->tm_mday;
+    // int year = info->tm_year;;
+    //
+    // //char *hi = asctime(info);
+    // // printf("The file %s was last modified at %s\n", filePath, date);
+    // time_t t = time(NULL);
+    // struct tm tm = *localtime(&t);
+    // if(tm.tm_year == year && tm.tm_mon == month && tm.tm_mday == day){
+    //   char *sstime = (char*)malloc(sizeof(char)*6);
+    //   sstime[0] = hour/10 + '0';
+    //   sstime[1] = hour%10 + '0';
+    //   sstime[2] = ':';
+    //   sstime[3] = min/10 + '0';
+    //   sstime[4] = min%10 + '0';
+    //   sstime[5] = '\0';
+    //   proc->time = sstime;
+    //
+    //
+    //
+    // }else{
+    //   switch(tm.tm_mon){
+    //     case 0:{
+    //       char *month = "JAN";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 1:{
+    //       char *month = "FEB";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 2:{
+    //       char *month = "MAR";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 3:{
+    //       char *month = "APR";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 4:{
+    //       char *month = "MAY";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 5:{
+    //       char *month = "JUN";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 6:{
+    //       char *month = "JUL";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 7:{
+    //       char *month = "AUG";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 8:{
+    //       char *month = "SEP";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 9:{
+    //       char *month = "OCT";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 10:{
+    //       char *month = "NOV";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //     case 11:{
+    //       char *month = "DEC";
+    //       char dday[3];
+    //       dday[0] = info->tm_mday/10 + '0';
+    //       dday[1] = info->tm_mday%10 + '0';
+    //       dday[2] = '\0';
+    //       char *date = concat(month, dday, '\0');
+    //       proc->time = date;
+    //     }
+    //
+    //   }
+    //
+    // }
+
+
     if(name[0] == '('){
       name[0] = '[';
     }
@@ -107,69 +290,7 @@ procObj *procFile(char *path){
 
 
 
-    /** pid **/
-    // char *s; char *t;
-    // char szStatStr [2048];
 
-    // procinfo * pinfo = (procinfo*)malloc(sizeof(procinfo));
-    // if ((s = fgets (szStatStr, 2048, fp)) == NULL) {
-    //   fclose (fp);
-    //   //return (pinfo->pid = -1);
-    // }
-    //
-    // sscanf (szStatStr, "%u", &(pinfo->pid));
-    // s = strchr (szStatStr, '(') + 1;
-    // t = strchr (szStatStr, ')');
-    // strncpy (pinfo->exName, s, t - s);
-    // pinfo->exName [t - s] = '\0';
-    // sscanf (t + 2, "%c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
-	  // /*       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
-	  // &(pinfo->state),
-	  // &(pinfo->ppid),
-	  // &(pinfo->pgrp),
-	  // &(pinfo->session),
-	  // &(pinfo->tty),
-	  // &(pinfo->tpgid),
-	  // &(pinfo->flags),
-	  // &(pinfo->minflt),
-	  // &(pinfo->cminflt),
-	  // &(pinfo->majflt),
-	  // &(pinfo->cmajflt),
-	  // &(pinfo->utime),
-	  // &(pinfo->stime),
-	  // &(pinfo->cutime),
-	  // &(pinfo->cstime),
-	  // &(pinfo->counter),
-	  // &(pinfo->priority),
-	  // &(pinfo->timeout),
-	  // &(pinfo->itrealvalue),
-	  // &(pinfo->starttime),
-	  // &(pinfo->vsize),
-	  // &(pinfo->rss),
-	  // &(pinfo->rlim),
-	  // &(pinfo->startcode),
-	  // &(pinfo->endcode),
-	  // &(pinfo->startstack),
-	  // &(pinfo->kstkesp),
-	  // &(pinfo->kstkeip),
-	  // &(pinfo->signal),
-	  // &(pinfo->blocked),
-	  // &(pinfo->sigignore),
-	  // &(pinfo->sigcatch),
-	  // &(pinfo->wchan));
-    //
-    // proc->user = pinfo->exName;
-    // proc->status = pinfo->state;
-    //printf("%c\t%s", s, name);
-  //  pinfo->vsize = pinfo->vsize / 1024;
-    //proc->vsz = pinfo->vsize;
-
-    //printf("%d %s  %ld\n",pinfo->pid,pinfo->exName, pinfo->rss);
-    // if(name != NULL){
-    //   printf("%s\n", name);
-    // }
-
-    //printf("%s\n", pinfo->exName);
     fclose(fp);
   }
   return proc;
@@ -295,34 +416,42 @@ void procPrinter(procObj *_proc, char isInit){
   if(isInit == '1'){
     char *user = "USER";
     char *pid = "PID";
-    //char *cpu = "%CPU";
+    char *cpu = "%CPU";
     char *mem = "%MEM";
     char *vsz = "VSZ";
     char *rss = "RSS";
     char *tty = "TTY";
     char *status = "STAT";
-    //char *cpu = "START";
-    //char *cpu = "TIME";
+    char *start = "START";
+    char *_time = "TIME";
     char *command = "COMMAND";
     printf ("%-5s\t", user);
     printf ("%5s\t", pid);
+    printf ("%5s\t", cpu);
     printf ("%5s\t", mem);
     printf ("%5s\t", vsz);
     printf ("%5s\t", rss);
     printf ("%-5s\t", tty);
     printf ("%-5s\t", status);
+    printf ("%-5s\t", start);
+    printf("%-5s\t", _time);
     printf ("%-5s\t", command);
 
   }
   else{
     printf ("%-5s\t", _proc->user);
     printf ("%5d\t", _proc->pid);
+    printf ("%5s\t", "");
     printf ("%5.1f\t", _proc->pmem);
     printf ("%5s\t", _proc->vsz);
     printf ("%5s\t", _proc->rss);
     char *tty = "?";
     printf ("%-5s\t",tty);
+
     printf ("%-5c\t",_proc->status);
+    //char *val = _proc->start;
+    printf ("%-5s\t", "");
+    printf ("%-5s\t", "");
     printf ("%-5s\t",_proc->command);
   }
 
@@ -331,7 +460,7 @@ void procPrinter(procObj *_proc, char isInit){
 
 void procReader(char * id, char *mem){
 
-  if(strcmp(id, "2") != 0){
+  if(strcmp(id, "186") != 0){
     //return;
   }
   char *path = concat("/proc", id, '/');
