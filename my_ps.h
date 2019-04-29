@@ -19,9 +19,10 @@ typedef struct structObj{
   int pid;
   float pcpu;
   float pmem;
-  float vsz;
-  float rss;
+  char *vsz;
+  char *rss;
   char tty;
+  char status;
   char *start;
   char *time;
   char *command;

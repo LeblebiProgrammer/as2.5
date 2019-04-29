@@ -2,7 +2,7 @@
 
 typedef struct statstruct_proc {
   int           pid;                      /** The process id. **/
-  char          *exName; /** The filename of the executable **/
+  char          exName[50]; /** The filename of the executable **/
   char          state; /** 1 **/          /** R is running, S is sleeping,
 			   D is sleeping in an uninterruptible wait,
 			   Z is zombie, T is traced or stopped **/
@@ -72,30 +72,8 @@ char *concat(char *str1, char *str2, char delimeter){
     return val;
 }
 
-// char *fileReader(char *fpath){
-//   printf("%s\n", fpath);
-//     int fd = open(fpath, O_RDONLY);
-//     char *fileStr = NULL;
-//     if(fd != -1){
-//         off_t currentPos = lseek(fd, (size_t)0, SEEK_CUR);
-//         int size = lseek(fd, 0, SEEK_END);
-//         if(size > 0){
-//           printf("HI\n");
-//         }
-//         lseek(fd, currentPos, SEEK_SET);
-//
-//         fileStr = (char*)malloc(sizeof(char)*size);
-//         read(fd, fileStr, size);
-//     }
-//     else{
-//         printf("Configure file could not be opened\n");
-//         exit(0);
-//     }
-//     close(fd);
-//     return fileStr;
-// }
-
-void procFile(char *path){
+procObj *procFile(char *path){
+  procObj * proc = (procObj*)malloc(sizeof(procObj));
   FILE *fp;
   fp= fopen(path, "r");
   if(fp == NULL){
@@ -106,18 +84,47 @@ void procFile(char *path){
     int pid = 0;
     char name[50];
     char s;
-    //char *state = (char*)malloc(sizeof(char)*3);
+    // char *state = (char*)malloc(sizeof(char)*3);
     int dummy = 0;
-    // long vsize;
-    // long rss;
-    //procinfo * pinfo = (procinfo*)malloc(sizeof(procinfo));
 
-    // fscanf(fp, "%d %s", &pid, name);
-    // scanf (fp, " %d %s %c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
-	  // /*             1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
-    // &(pinfo->pid),
-    // (pinfo->exName),
-    // &(pinfo->state),
+    fscanf(fp, "%d %s", &pid, name);
+    if(name[0] == '('){
+      name[0] = '[';
+    }
+    if(name[strlen(name)-1] == ')'){
+      name[strlen(name)-1] = ']';
+    }
+    int k = 0;
+    int lenName = strlen(name)+1;
+    char *val = (char*)malloc(sizeof(char)*(lenName));
+    for(k = 0; k< lenName-1; k++){
+      val[k] = name[k];
+    }
+    val[k] = '\0';
+    proc->command = val;
+    proc->pid = pid;
+    proc->status = s;
+
+
+
+    /** pid **/
+    // char *s; char *t;
+    // char szStatStr [2048];
+
+    // procinfo * pinfo = (procinfo*)malloc(sizeof(procinfo));
+    // if ((s = fgets (szStatStr, 2048, fp)) == NULL) {
+    //   fclose (fp);
+    //   //return (pinfo->pid = -1);
+    // }
+    //
+    // sscanf (szStatStr, "%u", &(pinfo->pid));
+    // s = strchr (szStatStr, '(') + 1;
+    // t = strchr (szStatStr, ')');
+    // strncpy (pinfo->exName, s, t - s);
+    // pinfo->exName [t - s] = '\0';
+    // sscanf (t + 2, "%c %d %d %d %d %d %u %u %u %u %u %d %d %d %d %d %d %u %u %d %u %u %u %u %u %u %u %u %d %d %d %d %u",
+	  // /*       1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33*/
+	  // &(pinfo->state),
 	  // &(pinfo->ppid),
 	  // &(pinfo->pgrp),
 	  // &(pinfo->session),
@@ -150,15 +157,13 @@ void procFile(char *path){
 	  // &(pinfo->sigignore),
 	  // &(pinfo->sigcatch),
 	  // &(pinfo->wchan));
-    fscanf(fp, "%d %s %c %d", &pid, name, &s, &dummy);
-    if(name[0] == '('){
-      name[0] = '[';
-    }
-    if(name[strlen(name)-1] == ')'){
-      name[strlen(name)-1] = ']';
-    }
-    printf("%c\t%s", s, name);
-    //pinfo->vsize = pinfo->vsize / 1024;
+    //
+    // proc->user = pinfo->exName;
+    // proc->status = pinfo->state;
+    //printf("%c\t%s", s, name);
+  //  pinfo->vsize = pinfo->vsize / 1024;
+    //proc->vsz = pinfo->vsize;
+
     //printf("%d %s  %ld\n",pinfo->pid,pinfo->exName, pinfo->rss);
     // if(name != NULL){
     //   printf("%s\n", name);
@@ -167,10 +172,11 @@ void procFile(char *path){
     //printf("%s\n", pinfo->exName);
     fclose(fp);
   }
+  return proc;
   //return "HI";
 }
 
-char *fileReader(char *fpath){
+char *fileReader(char *fpath, char limit){
   int fd;
   int MAX = 10;
   char buff[MAX];
@@ -183,9 +189,13 @@ char *fileReader(char *fpath){
   int readSize = -1;
   int k = 0;
   char wasWritten = '0';
-  while( (readSize = read(fd, buff, MAX)) > 0 && size < 50){
+  while( (readSize = read(fd, buff, MAX)) > 0){
     if(wasWritten != '1'){
       wasWritten = '1';
+    }
+    if(limit == '1' && size > 50)
+    {
+      break;
     }
     size += readSize;
 
@@ -210,10 +220,9 @@ char *fileReader(char *fpath){
   return readString;
 }
 
-
 char *loginFunction(char *fpath){
 
-  char *str = fileReader(fpath);
+  char *str = fileReader(fpath, '0');
   long uid = atoi(str);
   struct passwd *pwd;
   char *val = NULL;
@@ -235,50 +244,160 @@ char *loginFunction(char *fpath){
 
 }
 
-// char *statusFuntion
+char* interpret(char *fileStr, char *word, char endChar){
+  char* begin = strstr(fileStr, word);
+  char *val = NULL;
+  if(begin != NULL){
+    int count = 0;
+    count = strlen(word);
+    int end = count;
+    int start = count;
+    char hasStarted = '0';
+    for(count = count; count < strlen(begin); count++){
+      if(begin[count] == endChar && hasStarted == '1'){
+        break;
+      }
+      if(hasStarted == '1'){
+        end++;
+      }
+      if(isalnum(begin[count]) > 0 && hasStarted == '0'){
+        hasStarted = '1';
+        start = count;
+        end = start;
+      }
 
-void procReader(char * id){
+    }
+    //printf("%d", end);
+    if(end>0){
+      val = (char*)malloc(sizeof(char)*(end+1));
+      int i = 0;
+      for(start = start; start <= end; start++ ){
+        val[i] = begin[start];
+        i++;
+      }
+      val[i] = '\0';
+      //printf("%s\t",val);
+    }
+  }
+  return val;
+}
 
+float calculateMem(char *strMem, char *strRss){
+  long mem = atol(strMem);
+  long rss = atol(strRss) * 100;
 
+  float value = ((float)rss)/((float)mem);
+  //printf("%.1f\t", value);
+  return value;
+}
+
+void procPrinter(procObj *_proc, char isInit){
+  if(isInit == '1'){
+    char *user = "USER";
+    char *pid = "PID";
+    //char *cpu = "%CPU";
+    char *mem = "%MEM";
+    char *vsz = "VSZ";
+    char *rss = "RSS";
+    char *tty = "TTY";
+    char *status = "STAT";
+    //char *cpu = "START";
+    //char *cpu = "TIME";
+    char *command = "COMMAND";
+    printf ("%-5s\t", user);
+    printf ("%5s\t", pid);
+    printf ("%5s\t", mem);
+    printf ("%5s\t", vsz);
+    printf ("%5s\t", rss);
+    printf ("%-5s\t", tty);
+    printf ("%-5s\t", status);
+    printf ("%-5s\t", command);
+
+  }
+  else{
+    printf ("%-5s\t", _proc->user);
+    printf ("%5d\t", _proc->pid);
+    printf ("%5.1f\t", _proc->pmem);
+    printf ("%5s\t", _proc->vsz);
+    printf ("%5s\t", _proc->rss);
+    char *tty = "?";
+    printf ("%-5s\t",tty);
+    printf ("%-5c\t",_proc->status);
+    printf ("%-5s\t",_proc->command);
+  }
+
+  printf("\n");
+}
+
+void procReader(char * id, char *mem){
+
+  if(strcmp(id, "2") != 0){
+    //return;
+  }
   char *path = concat("/proc", id, '/');
   char *statusPath = concat(path, "status", '/');
-  char *statusFile = fileReader(statusPath);
-
   char *cmdLinePath = concat(path, "cmdline", '/');
-  char *cmdLine = fileReader(cmdLinePath);
-  if(cmdLine == NULL){
-
-  }
-  //char *statStr = fileReader(statPath);
-  //procFile(statPath);
-
   char *loginPath = concat(path, "loginuid", '/');
+  char *statPath = concat(path, "stat", '/');
+
+  char *statusFile = fileReader(statusPath, '0');
+  char *cmdLine = fileReader(cmdLinePath, '1');
   char *username = loginFunction(loginPath);
+  procObj *proc = procFile(statPath);
+
+  //cmdLine = proc->command;
+
+  //find vsz
+  proc->vsz = interpret(statusFile, "VmSize:\t", ' ');
+  if(proc->vsz == NULL){
+    char *vmsize = (char*)malloc(sizeof(char)*2);
+    vmsize[0] = '0';
+    vmsize[1] = '\0';
+    proc->vsz = vmsize;
+  }
+  //find rss
+  proc->rss = interpret(statusFile, "VmRSS:\t", ' ');
+  if(proc->rss == NULL){
+    char *rss = (char*)malloc(sizeof(char)*2);
+    rss[0] = '0';
+    rss[1] = '\0';
+    proc->rss = rss;
+
+  }
+  //calculate %mem
+  proc->pmem = calculateMem(mem, proc->rss);
   if(username != NULL){
-    printf("%s\t", username);
-    free(username);
+    proc->user = username;
   }
-  printf("%s \t", id);
+
   if(cmdLine != NULL){
-    printf("%s\t", cmdLine);
-    free(cmdLine);
+    proc->command = cmdLine;
   }else{
-    char *statPath = concat(path, "stat", '/');
-    procFile(statPath);
-    free(statPath);
+    //proc->command = cmdLine;
+    // printf("%s", proc->command);
   }
-  printf("\n");
+  //printf("\n");
+  procPrinter(proc, '0');
+  free(proc->vsz);
+  free(proc->rss);
+  free(proc);
+
   free(path);
   free(statusPath);
-  free(statusFile);
   free(cmdLinePath);
-
+  free(statPath);
   free(loginPath);
+
+  free(statusFile);
 }
 
 void callProc()
 {
+  procPrinter(NULL, '1');
   char *str = "/proc";
+  char *memFilePath = "/proc/meminfo";
+  char *statusFile = fileReader(memFilePath, '0');
+  char *memInfo = interpret(statusFile, "MemTotal:", ' ');
   struct dirent *de;  // Pointer for directory entry
 
     // opendir() returns a pointer of DIR type.
@@ -298,7 +417,7 @@ void callProc()
 
     //printf("%s\n", de->d_name);
 
-    procReader(de->d_name);
+    procReader(de->d_name, memInfo);
 
   }
 
